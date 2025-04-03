@@ -18,6 +18,7 @@
             text-decoration: underline;
         }
     </style>
+    {% block style %} {% endblock %}
 </head>
 <body>
    
@@ -41,7 +42,11 @@
             </div>
         </div>
     </header>
+
+
     {% block content %}{% endblock %}
+
+
     <!-- Footer -->
     <div class="chat-icon" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
         <button id="chatButton" class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;">

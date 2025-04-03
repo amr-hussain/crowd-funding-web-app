@@ -11,6 +11,12 @@ import random
 import string
 from datetime import datetime, timedelta
 
+
+class test(View):
+    def get(self, request):
+        return render(request, 'users/test.html')
+
+
 class login(View):
     def get(self, request):
         return render(request, 'users/login.html')

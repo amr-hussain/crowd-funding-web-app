@@ -1,7 +1,9 @@
 from django.views.generic import TemplateView
+from django.views import View
 from django.shortcuts import render
 from django.db.models import Count, Sum
 from projects.models import Project, Category
+from interactions.models import Donation, Comment, Rating, Report 
 from users.models import User
 
 class HomePage(TemplateView):
@@ -31,3 +33,13 @@ class HomePage(TemplateView):
         ).order_by('-project_count')[:8]
         
         return context
+
+
+class ProfilePage(View):
+    def get(self, request):
+        context = {}
+        context['user'] = User.objects.get(pk=self.request.user.pk)
+        
+        # Get user projects
+        context['projects'] = Project.objects.filter(creator=self.request.user).order_by('-start_time')
+        return render(request, 'main/profile.html', context)
