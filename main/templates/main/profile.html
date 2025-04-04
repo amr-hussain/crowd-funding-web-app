@@ -28,9 +28,11 @@
 
                 <div class="d-flex justify-content-center align-items-center gap-2">
 
-                    <a href="{% url 'home' %}" class="btn btn-primary d-block">View Donation History</a>
+                    <a href="{% url 'donation_history' %}" class="btn btn-primary d-block">View Donation History</a>
                 
-                    <a href="{% url 'home' %}" class="btn btn-primary d-block">Edit profile</a>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-primary d-block">Edit profile</a>
+
+                    <a href="{% url 'user_projects' %}" class="btn btn-primary d-block">My Projects</a>
                 </div> 
 
             </div>
@@ -95,7 +97,7 @@
             <div class="panel">
                 <div class="panel-header">
                     <h2>Recent Donations</h2>
-                    <!-- <a href="{% url 'donation_history' }" class="view-all-link">View All</a> -->
+                    <a href="{% url 'donation_history' %}" class="view-all-link">View All</a>
                 </div>
                 {% if recent_donations %}
                 <ul class="donation-list">
@@ -105,7 +107,7 @@
                         <img src="{{ donation.project_image.url }}" alt="{{ donation.project_title }}"
                             class="project-icon">
                         {% else %}
-                        <img src="{% static 'images/default-project.png' %}" alt="{{ donation.project_title }}"
+                        <img src="{% static 'images/default-project-image.png' %}" alt="{{ donation.project_title }}"
                             class="project-icon">
                         {% endif %}
                         <div class="donation-info">

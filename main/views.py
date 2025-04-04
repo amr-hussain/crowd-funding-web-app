@@ -1,14 +1,18 @@
 from django.views.generic import TemplateView
 from django.views import View
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.db.models import Count, Sum, Avg
 from django.db.models.functions import TruncMonth, TruncMinute, TruncHour
-from django.db.models import F
+from django.views.generic import DeleteView, UpdateView
 from datetime import datetime, timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.models import Project, Category
 from interactions.models import Donation, Comment, Rating, Report 
 from users.models import User
+
+# forms 
+from .forms import UserUpdateForm
 
 class HomePage(TemplateView):
 
@@ -39,53 +43,6 @@ class HomePage(TemplateView):
         return context
 
 
-# class ProfilePage(View):
-#     def get(self, request):
-#         context = {}
-        
-#         # Basic user statistics
-#         context['user_stats'] = {
-#             'total_donated': Donation.objects.aggregate(
-#                 total=Sum('amount')
-#             )['total'] or 0,
-#             'projects_supported': Donation.objects.values(
-#                 'project'
-#             ).distinct().count(),
-#             # 'member_since': "January 2023"  # This should come from user.date_joined
-#         }
-
-#         # Monthly donation chart data (last 6 months)
-#         six_months_ago = datetime.now() - timedelta(days=180)
-#         monthly_donations = Donation.objects.filter(
-#             created_at__gte=six_months_ago
-#         ).annotate(
-#             month=TruncMonth('created_at')
-#         ).values('month').annotate(
-#             total=Sum('amount')
-#         ).order_by('month')
-
-#         context['chart_data'] = {
-#             'labels': [d['month'].strftime('%b') for d in monthly_donations],
-#             'values': [float(d['total']) for d in monthly_donations]
-#         }
-
-#         # Recent donations with project details
-#         context['recent_donations'] = Donation.objects.select_related(
-#             'project', 'user'
-#         ).annotate(
-#             project_title=F('project__title'),
-#             donation_date=F('created_at'),
-#             project_image=F('project__projectpictures__image')
-#         ).order_by('-created_at')[:4]
-
-#         # Impact summary
-#         context['impact_summary'] = {
-#             'annual_target': 100000,  # This should be configurable
-#             'current_progress': context['user_stats']['total_donated'],
-#             'progress_percentage': min(100, (context['user_stats']['total_donated'] / 100000) * 100),
-#         }
-#         print("#" * 30, context)
-#         return render(request, 'main/profile.html', context)
 
 
 class ProfilePage(View):
@@ -156,9 +113,6 @@ class ProfilePage(View):
             'values': [donation_dict.get(d, 0) for d in all_hours]
         }
 
- 
-
-
         ##############################################################
 
 
@@ -216,3 +170,72 @@ class ProfilePage(View):
         for key, value in context.items():
             print(f"{key} ====> : {value}")
         return render(request, 'main/profile.html', context)
+    
+
+class EditProfile( UpdateView):
+    model = User
+    template_name = "main/edit_profile.html"
+    form_class = UserUpdateForm  
+    success_url = reverse_lazy("profile") 
+
+    # to edit the current user rather than passing the user pk in the url 
+    def get_object(self, queryset=None):
+        return self.request.user
+    
+
+class DonationHistory(View):
+    template_name = 'main/donation_history.html'
+    
+    def get(self, request):
+        user = request.user
+        donations = Donation.objects.filter(
+            user=user
+        ).select_related(
+            'project'
+        ).prefetch_related(
+            'project__projectpictures_set'
+        ).order_by('-created_at')
+
+        # Calculate total stats
+        total_stats = {
+            'total_donated': donations.aggregate(Sum('amount'))['amount__sum'] or 0,
+            'total_projects': donations.values('project').distinct().count(),
+            'total_donations': donations.count()
+        }
+        
+        context = {
+            'donations': donations,
+            'stats': total_stats,
+            'user': user,
+        }
+        return render(request, self.template_name, context)
+
+
+# view to display all projects created by the user
+class UserProjects(View):
+    def get(self, request):
+        user = request.user
+        
+        # Get all projects created by user with related data
+        projects = Project.objects.filter(
+            creator=user
+        ).select_related(
+            'category'
+        ).prefetch_related(
+            'projectpictures_set',
+            'donations'
+        ).annotate(
+            donation_count=Count('donations'),
+            total_raised=Sum('donations__amount'),
+            average_rating=Avg('ratings__value')
+        ).order_by('-start_time')
+
+        context = {
+            'projects': projects,
+            'total_projects': projects.count(),
+            'total_raised': projects.aggregate(
+                total=Sum('current_amount')
+            )['total'] or 0,
+        }
+        
+        return render(request, 'main/user_projects.html', context)

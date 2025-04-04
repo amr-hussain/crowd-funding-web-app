@@ -5,11 +5,11 @@ class User(AbstractUser):
     fname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
-    facebook_acount = models.CharField(max_length=50, null=True)
+    facebook_acount = models.CharField(max_length=50, null=True, blank=True)
     Birthdate = models.DateTimeField(null=True)
     phone = models.CharField(max_length=50)
     active_email = models.BooleanField(default=False)
-    picture = models.ImageField(upload_to='users/', default='default.jpg')
+    picture = models.ImageField(upload_to='users/', null=True, blank=True)
 
 
     USERNAME_FIELD = 'email'
