@@ -90,18 +90,18 @@ DEFAULT_FROM_EMAIL = '# your email address'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'main_postgres',
-    'USER': 'postgres',
-    'PASSWORD': 'amr', # اكتبوا الباسورد بتاع بوستجرس 
-    'HOST': 'localhost',
-    'PORT': 5432,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': {
+    # 'ENGINE': 'django.db.backends.postgresql',
+    # 'NAME': 'main_postgres',
+    # 'USER': 'postgres',
+    # 'PASSWORD': 'amr', # اكتبوا الباسورد بتاع بوستجرس 
+    # 'HOST': 'localhost',
+    # 'PORT': 5432,
+    # }
 }
 
 
@@ -140,8 +140,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static', 
+    BASE_DIR / 'main/static', 
+]
+# STATIC_ROOT = BASE_DIR / 'static/'
 
 
 # Default primary key field type
@@ -154,6 +158,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # login redirection MODIFY THIS AFTER CREATING HOMEPAGE 
-LOGIN_URL='login'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'profile'
+AUTH_USER_MODEL = 'users.User'
 
-LOGIN_REDIRECT_URL='home'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
