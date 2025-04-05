@@ -98,7 +98,7 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql',
     'NAME': 'main_postgres',
     'USER': 'postgres',
-    'PASSWORD': 'amr', # اكتبوا الباسورد بتاع بوستجرس 
+    'PASSWORD': 'password', # اكتبوا الباسورد بتاع بوستجرس
     'HOST': 'localhost',
     'PORT': 5432,
     }
