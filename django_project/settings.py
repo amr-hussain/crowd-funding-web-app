@@ -90,18 +90,18 @@ DEFAULT_FROM_EMAIL = '# your email address'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'main_postgres',
-    'USER': 'postgres',
-    'PASSWORD': 'amr', # اكتبوا الباسورد بتاع بوستجرس 
-    'HOST': 'localhost',
-    'PORT': 5432,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': {
+    # 'ENGINE': 'django.db.backends.postgresql',
+    # 'NAME': 'main_postgres',
+    # 'USER': 'mn3m',
+    # 'PASSWORD': '123', # اكتبوا الباسورد بتاع بوستجرس 
+    # 'HOST': 'localhost',
+    # 'PORT': 5432,
+    # }
 }
 
 

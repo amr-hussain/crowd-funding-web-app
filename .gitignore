@@ -138,3 +138,28 @@ GitHub.sublime-settings
 # db.sqlite3
 
 # sayyar/settings.py
+
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+
+# Django
+*.log
+*.pot
+*.pyc
+media/
+staticfiles/
+.env
+
+# Environments
+venv/
+env/
+myenv/
+
+# VSCode
+.vscode/
