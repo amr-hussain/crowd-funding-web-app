@@ -10,5 +10,7 @@ urlpatterns = [
     path ('who', who, name='who'),
     path('delete', delete_user, name='delete'),
     path('tempreport', tempreport, name='delete'),
+    path('forget',forget.as_view(), name='forget'),
+   
   
 ]

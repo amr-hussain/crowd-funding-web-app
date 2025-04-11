@@ -18,6 +18,8 @@ from django.db.models import Count, Sum
 from django.contrib import messages
 from django.db.models import Q
 from users.models import User 
+from decimal import Decimal, InvalidOperation
+
 def search_view(request):
     query = request.GET.get('q', '')
     search_type = request.GET.get('type', 'projects')
@@ -46,19 +48,36 @@ def donate_view(request, pk):
         amount = request.POST.get('amount')
         try:
             amount = Decimal(amount)
-            if amount > 0:
-                project.current_amount += amount
-                project.save()
-                messages.success(request, f"Thanks for donating ${amount:.2f}!")
+
+            if amount <= 0:
+                messages.error(request, "Donation amount must be greater than 0.")
+                return redirect('donate', pk=project.pk)
+
+            if project.funding_percentage >= 100:
+                messages.error(request, "This project is already fully funded.")
                 return redirect('project_detail', pk=project.pk)
-            else:
-                messages.error(request, "Amount must be greater than 0.")
-        except ValueError:
-            messages.error(request, "Invalid amount entered.")
+
+            if amount > project.remaining_amount:
+                messages.error(
+                    request,
+                    f"The maximum you can donate is ${project.remaining_amount:.2f}."
+                )
+                return redirect('donate', pk=project.pk)
+
+            # ✅ Just create the donation — no touching current_amount
+            Donation.objects.create(
+                user=request.user,
+                project=project,
+                amount=amount
+            )
+
+            messages.success(request, f"Thanks for donating ${amount:.2f}!")
+            return redirect('project_detail', pk=project.pk)
+
+        except Exception:
+            messages.error(request, "Invalid donation amount.")
 
     return render(request, 'components/donation_form.html', {'project': project})
-
-
 class ProjectDetailView(LoginRequiredMixin,DetailView):
     model = Project
     template_name = 'components/project_detail.html'  
@@ -79,7 +98,7 @@ class HomePage(TemplateView):
             'tags', 'projectpictures_set'
         ).annotate(
             image_count=Count('projectpictures'),
-            total_donations=Sum('current_amount'),
+            total_donations=Sum('donations__amount')
         )
 
         if category_slug:

@@ -26,7 +26,9 @@ class Donation(models.Model):
         if is_new:  # Only update the project amount for new donations in order to prevent addint the money again if the user updated the project name or time for example 
             self.project.current_amount += self.amount
             self.project.save()
-
+  
+        
+        
 
 class Comment(models.Model):
     """

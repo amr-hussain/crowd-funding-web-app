@@ -137,4 +137,8 @@ def delete_user(request):
 def tempreport(request):
     reason = request.GET.get('type')
     return render(request, 'users/report.html',{'type': reason})
-    
+
+
+class forget(View):
+    def get(self, request):
+        return render(request, 'users/reset_password_master.html')

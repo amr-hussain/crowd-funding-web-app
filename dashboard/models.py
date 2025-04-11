@@ -1,8 +1,9 @@
 from django.db import models
 from users.models import User
 import os
+from decimal import Decimal
 from django.utils.text import slugify
-
+from django.db.models import Sum
 class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -30,7 +31,7 @@ class Tag(models.Model):
 
 class Project(models.Model):
     """
-    The main project model, the model has automatic id field created by django 
+    The main project model — automatically includes ID
     """
     # Basic information
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -38,29 +39,42 @@ class Project(models.Model):
     details = models.TextField()
     
     # Category and tags
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    tags = models.ManyToManyField('Tag')
     
     # Funding information
-    target = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
-                                help_text="Target amount to raise")
-    current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
+    target = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        null=True, blank=True,
+        help_text="Target amount to raise"
+    )
+
     # Time information
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
     
-    
     def __str__(self):
         return self.title
-    
+
+    @property
+    def current_amount(self):
+        """Calculate the total amount of donations for this project"""
+        return self.donations.aggregate(total=Sum('amount'))['total'] or Decimal(0)
+
     @property
     def funding_percentage(self):
-        """Calculate what percentage of the target has been funded"""
-        if self.target == 0:
-            return 0
+        """Calculate how much % of the target has been raised"""
+        if not self.target or self.target == 0:
+            return Decimal(0)
         return (self.current_amount / self.target) * 100
-    
+
+    @property
+    def remaining_amount(self):
+        """Calculate remaining amount"""
+        if not self.target or self.target == 0:
+            return Decimal(0)
+        return max(Decimal(0), self.target - self.current_amount)
+
     @property
     def can_be_cancelled(self):
         """Check if project can be cancelled (less than 25% funded)"""
