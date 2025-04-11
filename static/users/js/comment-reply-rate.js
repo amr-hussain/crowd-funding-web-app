@@ -55,7 +55,7 @@ function getComments(id) {
     fetch(`/interactions/${id}`)
     .then(response => response.json())
     .then(data => {
-        console.log('Comments:', data);
+        
         const commentsList = document.getElementById('comments-all');
         commentsList.innerHTML = `<div class="d-flex align-items-start mb-4">
             <img src="${data[0][0]}" alt="avatar" class="rounded-circle me-3" width="48" height="48">
@@ -188,7 +188,7 @@ function getRates(id) {
         const ratesList = document.getElementById('rates-all');
         ratesList.innerHTML =''
         data.forEach(rate => {
-            console.log(rate);
+            
             // rate ={user_photo: 'path/to/photo', rate: 5,fname: 'John Doe'}
             ratesList.innerHTML += `
             <div class="d-flex flex-start mt-4">
